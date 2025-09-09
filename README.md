@@ -15,7 +15,7 @@ The Rodin Bridge for Unreal integrates Rodin's powerful AI-based 3D generation c
 
 **Requirements**
 
-Unreal Engine 5.1 (C++ project and BluePrint project) and later version (C++ project recommanded)
+Unreal Engine 5.1 - 5.6
 
 **Step-by-step Instruction**
 
