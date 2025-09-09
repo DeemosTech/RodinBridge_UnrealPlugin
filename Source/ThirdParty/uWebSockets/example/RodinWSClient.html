@@ -1,0 +1,168 @@
+  <!DOCTYPE html>
+  
+  <!-- Copyright Pandores Marketplace 2021, All rights reserved. --> 
+  <!-- WebSocket client extended from https://www.websocket.org/echo.html. -->
+  
+  <meta charset="utf-8" />
+  <title>WebSocket Test</title>
+  
+  <style>
+	/* minimal styling. */
+	
+	html {
+		font-family: Arial;
+	}
+	
+	#server-ip {
+		font-family: consolas;
+		border: 1px solid #bbb;
+		background: #eee;
+		padding: 3px;
+	}
+	
+	#output-wrapper {
+		padding: 5px;
+		margin-top: 10px;
+		border: 1px solid #ccc;
+	}
+	
+	#output {
+		margin-left: 10px;
+		max-height: 500px;
+		overflow-y: auto;
+	}
+	
+	p {
+	    margin: 4px
+	}
+	
+	#message-wrapper {
+	  margin-top: 10px;
+	}
+  </style>
+	
+  <script language="javascript" type="text/javascript">
+
+  var wsUri = "ws://127.0.0.1:8080/";
+  var output;
+  
+  function getServerIpElem()
+  {
+	return document.getElementById("server-ip");
+  }
+
+  function init()
+  {
+    output = document.getElementById("output");
+	
+    document.getElementById("connect-bt").addEventListener('click', function(e)
+    {
+	  output.innerHTML = "";
+	  testWebSocket();
+    });
+	
+	let messageInput = document.getElementById("message");
+	
+	document.getElementById("send-message").addEventListener('click', function(e)
+    {
+	  doSend(messageInput.value);
+    });
+	
+	document.getElementById("send-message-binary").addEventListener('click', function(e)
+	{
+		doSendBinary(messageInput.value);
+	});
+	
+	getServerIpElem().value = wsUri;
+  }
+
+  function testWebSocket()
+  {
+	wsUri = getServerIpElem().value;
+    
+	writeToScreen("CONNECTING...");
+	
+    websocket           = new WebSocket(wsUri);
+    websocket.onopen    = function(evt) { onOpen(evt)    };
+    websocket.onclose   = function(evt) { onClose(evt)   };
+    websocket.onmessage = function(evt) { onMessage(evt) };
+    websocket.onerror   = function(evt) { onError(evt)   };
+  }
+
+  function onOpen(evt)
+  {
+    writeToScreen("CONNECTED");
+  }
+
+  function onClose(evt)
+  {
+    writeToScreen("DISCONNECTED");
+  }
+
+  function onMessage(evt)
+  {
+	if (evt.data instanceof Blob)
+	{
+		evt.data.text().then((txt) => 
+		{
+			writeToScreen('<span style="color: #33D3FF;">RESPONSE (BINARY): ' + txt +'</span>');
+		})
+	}
+	else
+	{
+		writeToScreen('<span style="color: blue;">RESPONSE: ' + evt.data + '</span>');
+	}
+  }
+
+  function onError(evt)
+  {
+    writeToScreen('<span style="color: red;">ERROR:</span> ' + JSON.stringify(evt));
+  }
+
+  function doSend(message)
+  {
+    writeToScreen("SENT: " + message);
+    websocket.send(message);
+  }
+  
+  function doSendBinary(message)
+  {
+	writeToScreen("SENT (BINARY): " + message);
+	websocket.send(new Blob([message]))
+  }
+
+  function writeToScreen(message)
+  {
+    var pre = document.createElement("p");
+    pre.style.wordWrap = "break-word";
+    pre.innerHTML = message;
+    output.appendChild(pre);
+  }
+
+  window.addEventListener("load", init, false);
+
+  </script>
+  
+  <h2>WebSocket Test</h2>
+  
+  <div>Server URI: 
+    <input id="server-ip"/>
+    <button id="connect-bt">
+	  Connect
+    </button>
+  </div>
+  
+  <div id="message-wrapper">
+    <input id="message"/>
+	<button id="send-message">
+	  Send
+	</button>
+	<button id="send-message-binary">
+	  Send as Binary
+	</button>
+  </div>
+
+  <div id="output-wrapper">
+	<h4>OUTPUT:</h4>
+	<div id="output"></div>
+  </div>
